@@ -13,6 +13,11 @@
 - 调试与证据链展示
 
 项目当前定位已经从“单体扫描插件”升级为“前端资产与 DOMXSS 审计工作台”。
+<img width="414" height="614" alt="image" src="https://github.com/user-attachments/assets/befa4a1a-aea2-4aad-9397-4492e4a4486f" />
+
+<img width="381" height="503" alt="image" src="https://github.com/user-attachments/assets/abb0fa8e-b207-43ac-ba42-fd822dc1b66a" />
+<img width="414" height="614" alt="image" src="https://github.com/user-attachments/assets/3b0f9240-fd41-45e7-a332-9eb1117e6e79" />
+
 
 ## 1. 与 SnowEyes v0.3.0 的对比
 
