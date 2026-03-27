@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <div class="nav-bar">
+    <div class="nav-left">
+      <button class="nav-tab active" data-page="scanner">信息搜集</button>
+      <button class="nav-tab" data-page="report">漏洞报告</button>
+      <button class="nav-tab" data-page="fingerprint">指纹嗅探</button>
+      <button class="nav-tab" data-page="analysis">网站解析</button>
+      <button class="nav-tab" data-page="debug">调试</button>
+      <button class="nav-tab" data-page="config">配置</button>
+      <button class="progress-tab">0%</button>
+    </div>
+    <div class="nav-right">
+      <button class="open-tab-btn" id="openStandalone">展开</button>
+    </div>
+  </div>
+  <div class="frame-nav-bar" style="display: none;">
+    <div class="frame-nav-left">
+    </div>
+  </div>
+
+  <!-- 扫描页面 -->
+  <div class="page scanner-page active">
+    <div class="container"></div>
+  </div>
+
+  <!-- 漏洞报告页面 -->
+  <div class="page report-page">
+    <div class="container">
+      <div class="report-toolbar">
+        <button class="report-action-btn" id="refreshReports">刷新</button>
+        <button class="report-action-btn" id="copyReports">复制全部</button>
+        <button class="report-action-btn" id="exportReports">导出全部</button>
+        <button class="report-action-btn danger" id="clearReports">清空</button>
+      </div>
+      <div class="report-batch-toolbar">
+        <button class="report-action-btn" id="toggleSelectAllReports">全选</button>
+        <button class="report-action-btn" id="batchExportReports" disabled>导出已选</button>
+        <button class="report-action-btn danger" id="batchDeleteReports" disabled>删除已选</button>
+        <div class="report-filter-wrap">
+          <label for="reportSeverityFilter">等级筛选</label>
+          <select id="reportSeverityFilter" class="report-filter-select">
+            <option value="all">全部</option>
+            <option value="critical">CRITICAL</option>
+            <option value="high">HIGH</option>
+            <option value="medium">MEDIUM</option>
+            <option value="low">LOW</option>
+            <option value="info">INFO</option>
+          </select>
+        </div>
+        <span class="report-selected-count" id="selectedReportsCount">已选 0 条</span>
+      </div>
+      <div class="report-list">
+        <div class="loading">正在加载漏洞报告...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-detail-mask" id="reportDetailMask">
+    <div class="report-detail-panel">
+      <div class="detail-header">
+        <div class="detail-title-wrap">
+          <span class="severity-tag" id="detailSeverityTag">MEDIUM</span>
+          <h3 id="detailTitle">漏洞详情</h3>
+        </div>
+        <button class="detail-close-btn" id="closeReportDetail">关闭</button>
+      </div>
+      <div class="detail-content">
+        <div class="detail-meta-grid">
+          <div class="detail-meta-item"><span class="meta-label">类型</span><span class="meta-value" id="detailCategory">-</span></div>
+          <div class="detail-meta-item"><span class="meta-label">时间</span><span class="meta-value" id="detailTime">-</span></div>
+          <div class="detail-meta-item"><span class="meta-label">来源URL</span><span class="meta-value" id="detailSourceUrl">-</span></div>
+          <div class="detail-meta-item"><span class="meta-label">页面URL</span><span class="meta-value" id="detailPageUrl">-</span></div>
+          <div class="detail-meta-item"><span class="meta-label">Source点</span><span class="meta-value" id="detailSourcePoint">-</span></div>
+          <div class="detail-meta-item"><span class="meta-label">Sink点</span><span class="meta-value" id="detailSinkPoint">-</span></div>
+        </div>
+
+        <div class="detail-block">
+          <div class="block-title">Source-Sink链路</div>
+          <pre class="block-code" id="detailSourceSinkChain">-</pre>
+        </div>
+        <div class="detail-block">
+          <div class="block-title">漏洞利用EXP</div>
+          <pre class="block-code" id="detailExp">-</pre>
+          <div class="ai-actions">
+            <button class="report-action-btn" id="runDomxssConsoleAssist">Console验证助手</button>
+            <button class="report-action-btn" id="copyDomxssConsoleScript">复制Console脚本</button>
+            <button class="report-action-btn" id="triggerXssPoc">一键复现(主动注入)</button>
+          </div>
+          <pre class="block-code" id="pocResult">建议先点击“Console验证助手”（不改URL、不发起新请求）；需要主动注入时再使用“一键复现(主动注入)”。</pre>
+        </div>
+        <div class="detail-block">
+          <div class="block-title">修复建议</div>
+          <pre class="block-code" id="detailAdvice">-</pre>
+        </div>
+
+        <div class="detail-block">
+          <div class="block-title">AI误报研判</div>
+          <div class="ai-actions">
+            <button class="report-action-btn" id="runAiReview">开始研判</button>
+          </div>
+          <pre class="block-code" id="aiReviewResult">点击“开始研判”生成结果。</pre>
+          <div class="ai-agent-box">
+            <div class="ai-agent-actions">
+              <input id="aiAgentInput" class="ai-agent-input" placeholder="继续追问：比如“为什么这条PoC没有触发？”" />
+              <button class="report-action-btn" id="sendAiAgent">发送</button>
+              <button class="report-action-btn" id="clearAiAgent">清空会话</button>
+            </div>
+            <pre class="block-code ai-agent-history" id="aiAgentConversation">可在这里持续对话调试：source/sink链路、PoC失败原因、下一步验证动作。</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 指纹嗅探页面 -->
+  <div class="page fingerprint-page">
+    <div class="container">
+      <div class="fingerprint-section">
+        <!-- 指纹组将由 JS 动态添加 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加网站解析页面 -->
+  <div class="page analysis-page">
+    <div class="container">
+      <div class="analysis-section">
+        <!-- 基本信息 -->
+        <div class="analysis-group basic-group">
+          <h3>基本信息</h3>
+          <div class="basic-info">
+          </div>
+        </div>
+
+        <!-- 域名权重信息 -->
+        <div class="analysis-group weight-group">
+          <h3>搜索引擎权重</h3>
+          <div class="weight-grid">
+          </div>
+        </div>
+
+        <!-- IP地址信息 -->
+        <div class="analysis-group ip-group">
+          <h3>IP信息</h3>
+          <div class="ip-info">
+          </div>
+        </div>
+
+        <!-- Whois信息 -->
+        <div class="analysis-group whois-group">
+          <h3>Whois信息</h3>
+          <div class="whois-info">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 调试页面 -->
+  <div class="page debug-page">
+    <div class="container">
+      <div class="report-toolbar debug-toolbar">
+        <button class="report-action-btn" id="refreshDebug">刷新</button>
+        <button class="report-action-btn" id="copyDebug">复制</button>
+      </div>
+      <div class="debug-panel" id="debugPanel">
+        <div class="loading">正在加载调试信息...</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 配置页面 -->
+  <div class="page config-page">
+    <div class="container">
+      <div class="config-section">
+        <div class="config-group">
+          <h3>扫描白名单</h3>
+          <div class="config-content">
+            以下域名网站（包括子域名）不会被扫描：
+          </div>
+          <textarea id="whitelistInput" placeholder="输入域名，每行一个，如：&#10;example.com&#10;test.org&#10;localhost" rows="6"></textarea>
+          <div class="config-buttons">
+            <button id="saveWhitelist" class="save-btn">保存白名单</button>
+          </div>
+        </div>
+
+        <!-- 添加动态扫描控制 -->
+        <div class="config-group">
+          <h3>扫描设置</h3>
+          <div class="config-item">
+            <label class="switch-wrapper">
+              <input type="checkbox" id="dynamicScan" class="switch-input">
+              <span class="switch-label">动态扫描</span>
+            </label>
+            <div class="config-desc">
+              启用后将自动扫描页面动态变化的内容，适用于单页应用等动态渲染的页面
+            </div>
+          </div>
+          <div class="config-item">
+            <label class="switch-wrapper">
+              <input type="checkbox" id="deepScan" class="switch-input">
+              <span class="switch-label">深度扫描</span>
+            </label>
+            <div class="config-desc">
+              启用后将递归扫描JS文件中引用的其他JS文件，可能会增加扫描时间
+            </div>
+          </div>
+        </div>
+
+        <div class="config-group">
+          <h3>AI误报研判配置</h3>
+          <div class="config-content">
+            可选 本地启发式 / Codex / DeepSeek / GLM。保存后，“漏洞报告-开始研判”将调用对应策略。
+          </div>
+          <div class="config-item">
+            <label class="config-label" for="aiProvider">模型提供商</label>
+            <select id="aiProvider" class="ai-input">
+              <option value="local">本地启发式判定</option>
+              <option value="codex">Codex</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="glm">GLM</option>
+            </select>
+          </div>
+          <div class="config-item">
+            <label class="config-label" for="aiEndpoint">API Endpoint</label>
+            <input id="aiEndpoint" class="ai-input" placeholder="https://api.openai.com/v1/chat/completions" />
+          </div>
+          <div class="config-item">
+            <label class="config-label" for="aiModel">模型名</label>
+            <input id="aiModel" class="ai-input" placeholder="gpt-5.1-codex" />
+          </div>
+          <div class="config-item">
+            <label class="config-label" for="aiApiKey">API Key</label>
+            <input id="aiApiKey" type="password" class="ai-input" placeholder="sk-..." />
+          </div>
+          <div class="config-item ai-number-grid">
+            <div>
+              <label class="config-label" for="aiTemperature">Temperature</label>
+              <input id="aiTemperature" type="number" min="0" max="1" step="0.1" class="ai-input" />
+            </div>
+            <div>
+              <label class="config-label" for="aiMaxTokens">Max Tokens</label>
+              <input id="aiMaxTokens" type="number" min="100" max="4096" step="100" class="ai-input" />
+            </div>
+          </div>
+          <div class="config-buttons">
+            <button id="saveAiConfig" class="save-btn">保存AI配置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="report-schema-core.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html> 
