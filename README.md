@@ -17,6 +17,7 @@
 <img width="414" height="614" alt="image" src="https://github.com/user-attachments/assets/befa4a1a-aea2-4aad-9397-4492e4a4486f" />
 <img width="381" height="503" alt="image" src="https://github.com/user-attachments/assets/abb0fa8e-b207-43ac-ba42-fd822dc1b66a" />
 <img width="414" height="614" alt="image" src="https://github.com/user-attachments/assets/3b0f9240-fd41-45e7-a332-9eb1117e6e79" />
+<img width="408" height="606" alt="image" src="https://github.com/user-attachments/assets/e949e7c3-a46a-4728-a5a8-32e05aa8576d" />
 
 
 ## 1. 与 SnowEyes v0.3.0 的对比
